@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
         Plan::create([
             'name' => 'Monthly Plan',
             'code' => 'MONTHLY',
-            'description' => 'Pilihan Sempurna untuk usaha kecil yang baru memulai sistem Kasir Digital.',
+            'description' => 'Pilihan Sempurna untuk Usaha yang baru memulai Sistem Kasir Digital.',
             'features' => [
                 'Transaksi Tanpa Batas',
                 'Laporan Penjualan',
