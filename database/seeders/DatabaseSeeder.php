@@ -25,17 +25,16 @@ class DatabaseSeeder extends Seeder
         Plan::create([
             'name' => 'Monthly Plan',
             'code' => 'MONTHLY',
-            'description' => 'Perfect for small businesses getting started with POS system. Includes essential features with 7-day free trial.',
+            'description' => 'Pilihan Sempurna untuk usaha kecil yang baru memulai sistem Kasir Digital.',
             'features' => [
-                'Unlimited Transactions',
-                'Basic Sales Reports',
-                'Inventory Management',
-                'Customer Database',
-                'Email Support',
-                '1 Device License',
-                'Cloud Backup'
+                'Transaksi Tanpa Batas',
+                'Laporan Penjualan',
+                'Terhubung dengan Printer Struk',
+                '1 Akun 1 Device',
+                'Backup Database',
+                'Restore Database',
             ],
-            'price' => 199000, // IDR 199,000
+            'price' => 135000, // IDR 199,000
             'currency' => 'IDR',
             'duration_days' => 30,
             'trial_days' => 7,
@@ -45,22 +44,17 @@ class DatabaseSeeder extends Seeder
         Plan::create([
             'name' => 'Yearly Plan',
             'code' => 'YEARLY',
-            'description' => 'Best value for growing businesses. Save 17% with annual billing and get extended trial period with premium features.',
+            'description' => 'Pilihan terbaik untuk bisnis yang sedang berkembang. Hemat 15%.',
             'features' => [
-                'Unlimited Transactions',
-                'Advanced Analytics & Reports',
-                'Multi-location Support',
-                'Advanced Inventory Management',
-                'Customer Loyalty Program',
-                'API Access',
-                'Priority Support',
-                'Up to 5 Device Licenses',
-                'Advanced Cloud Backup',
-                'Custom Reports',
-                'Sales Forecasting',
-                'Staff Management'
+                'Transaksi Tanpa Batas',
+                'Laporan Penjualan',
+                'Terhubung dengan Printer Struk',
+                '1 Akun 1 Device',
+                'Backup Database',
+                'Restore Database',
+                'Hemat 15%',
             ],
-            'price' => 1990000, // IDR 1,990,000
+            'price' => 1375000, // IDR 1,990,000
             'currency' => 'IDR',
             'duration_days' => 365,
             'trial_days' => 14,
@@ -69,9 +63,9 @@ class DatabaseSeeder extends Seeder
 
         // Create admin user
         $adminUser = User::create([
-            'name' => 'Admin User',
+            'name' => 'Ewin Lantapa',
             'email' => 'admin@pos.test',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('89898989'),
             'email_verified_at' => now(),
         ]);
         $adminUser->assignRole('admin');
