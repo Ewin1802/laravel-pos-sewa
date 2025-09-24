@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', 'http://maphijau.my.id'),
 
     /*
     |--------------------------------------------------------------------------
@@ -76,7 +76,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Asia/Makassar',
 
     /*
     |--------------------------------------------------------------------------
@@ -144,10 +144,10 @@ return [
     */
 
     'payment' => [
-        'bank_account_name' => env('PAYMENT_BANK_ACCOUNT_NAME', 'POS System Ltd'),
-        'bank_account_number' => env('PAYMENT_BANK_ACCOUNT_NUMBER', '1234567890'),
-        'bank_name' => env('PAYMENT_BANK_NAME', 'Sample Bank'),
-        'wallet_number' => env('PAYMENT_WALLET_NUMBER', '081234567890'),
-        'wallet_name' => env('PAYMENT_WALLET_NAME', 'POS System Wallet'),
+        'bank_account_name' => env('PAYMENT_BANK_ACCOUNT_NAME', 'RAHMAT RUDIYANTO LANTAPA'),
+        'bank_account_number' => env('PAYMENT_BANK_ACCOUNT_NUMBER', '1384512323'),
+        'bank_name' => env('PAYMENT_BANK_NAME', 'Bank BNI'),
+        'wallet_number' => env('PAYMENT_WALLET_NUMBER', '081340985993'),
+        'wallet_name' => env('PAYMENT_WALLET_NAME', 'Wallet'),
     ],
 ];
