@@ -44,7 +44,7 @@ class LicenseController extends BaseApiController
 
             return $this->successResponse([
                 'license_token' => $licenseToken->getAttribute('plain_token'),
-                'expires_at' => $licenseToken->expires_at->setTimezone('UTC'),
+                'expires_at' => $licenseToken->expires_at,
                 'device' => $device,
                 'subscription_status' => $subscription->status,
                 'plan_code' => $subscription->isTrial() ? 'TRIAL' : $subscription->plan->code,
@@ -81,7 +81,7 @@ class LicenseController extends BaseApiController
 
             return $this->successResponse([
                 'license_token' => $licenseToken->getAttribute('plain_token'),
-                'expires_at' => $licenseToken->expires_at->setTimezone('UTC'),
+                'expires_at' => $licenseToken->expires_at,
                 'device' => $device,
                 'subscription_status' => $subscription?->status,
                 'plan_code' => $subscription?->isTrial() ? 'TRIAL' : $subscription?->plan->code,
@@ -157,7 +157,7 @@ class LicenseController extends BaseApiController
 
             return $this->successResponse([
                 'license_token' => $licenseToken->getAttribute('plain_token'),
-                'expires_at' => $licenseToken->expires_at->setTimezone('UTC'),
+                'expires_at' => $licenseToken->expires_at,
                 'device' => $device,
                 'subscription_status' => $subscription->status,
                 'plan_code' => $subscription->isTrial() ? 'TRIAL' : $subscription->plan->code,
