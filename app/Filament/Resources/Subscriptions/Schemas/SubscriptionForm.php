@@ -20,8 +20,11 @@ class SubscriptionForm
                     ->relationship('plan', 'name')
                     ->required(),
                 DateTimePicker::make('start_at')
-                    ->required(),
-                DateTimePicker::make('end_at'),
+                    ->required()
+                    ->timezone('Asia/Makassar'),
+
+                DateTimePicker::make('end_at')
+                    ->timezone('Asia/Makassar'),
                 Select::make('status')
                     ->options([
             'active' => 'Active',
@@ -33,8 +36,11 @@ class SubscriptionForm
                     ->required(),
                 Toggle::make('is_trial')
                     ->required(),
-                DateTimePicker::make('trial_started_at'),
-                DateTimePicker::make('trial_end_at'),
+                DateTimePicker::make('trial_started_at')
+                    ->timezone('Asia/Makassar'),
+
+                DateTimePicker::make('trial_end_at')
+                    ->timezone('Asia/Makassar'),
                 Select::make('current_invoice_id')
                     ->relationship('currentInvoice', 'id')
                     ->default(null),

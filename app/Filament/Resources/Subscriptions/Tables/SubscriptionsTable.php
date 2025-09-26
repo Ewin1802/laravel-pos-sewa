@@ -20,28 +20,31 @@ class SubscriptionsTable
                 TextColumn::make('plan.name')
                     ->searchable(),
                 TextColumn::make('start_at')
-                    ->dateTime()
+                    ->dateTime(timezone: 'Asia/Makassar')
                     ->sortable(),
+
                 TextColumn::make('end_at')
-                    ->dateTime()
+                    ->dateTime(timezone: 'Asia/Makassar')
                     ->sortable(),
                 TextColumn::make('status'),
                 IconColumn::make('is_trial')
                     ->boolean(),
                 TextColumn::make('trial_started_at')
-                    ->dateTime()
+                    ->dateTime(timezone: 'Asia/Makassar')
                     ->sortable(),
+
                 TextColumn::make('trial_end_at')
-                    ->dateTime()
+                    ->dateTime(timezone: 'Asia/Makassar')
                     ->sortable(),
                 TextColumn::make('currentInvoice.id')
                     ->searchable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime(timezone: 'Asia/Makassar')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime(timezone: 'Asia/Makassar')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
