@@ -108,13 +108,7 @@ class CheckoutService
             'currency' => $plan->currency,
             'due_at' => $dueAt,
             'status' => Invoice::STATUS_PENDING,
-            'description' => "Subscription to {$plan->name} plan",
-            'metadata' => [
-                'plan_id' => $plan->id,
-                'plan_code' => $plan->code,
-                'plan_name' => $plan->name,
-                'checkout_at' => now()->toISOString(),
-            ],
+            'note' => "Subscription to {$plan->name} plan",
         ]);
     }
 
@@ -186,76 +180,40 @@ class CheckoutService
     }
 
     /**
-     * Get checkout statistics for a merchant
+     * Get checkout statistics for a merchant - only returns the latest invoice
      */
     public function getCheckoutStats(Merchant $merchant): array
     {
-        $pendingInvoices = $merchant->invoices()
-            ->where('status', Invoice::STATUS_PENDING)
+        // Get the latest invoice regardless of status
+        $latestInvoice = $merchant->invoices()
             ->with('subscription.plan')
-            ->get();
+            ->latest('created_at')
+            ->first();
 
-        $awaitingConfirmation = $merchant->invoices()
-            ->where('status', Invoice::STATUS_AWAITING_CONFIRMATION)
-            ->with('subscription.plan')
-            ->get();
-
-        $paidInvoices = $merchant->invoices()
-            ->where('status', Invoice::STATUS_PAID)
-            ->with('subscription.plan')
-            ->latest('updated_at')
-            ->get();
+        $activeDevices = $merchant->devices()->where('is_active', true)->get();
 
         return [
-            'pending_payments' => $pendingInvoices->count(),
-            'awaiting_confirmation' => $awaitingConfirmation->count(),
-            'paid_invoices' => $paidInvoices->map(function ($invoice) {
-                return [
-                    'id' => $invoice->id,
-                    'amount' => $invoice->amount,
-                    'currency' => $invoice->currency,
-                    'paid_at' => $invoice->updated_at,
-                    'description' => $invoice->description,
-                    'status' => $invoice->status,
-                    'plan' => $invoice->subscription?->plan ? [
-                        'id' => $invoice->subscription->plan->id,
-                        'name' => $invoice->subscription->plan->name,
-                        'code' => $invoice->subscription->plan->code,
-                    ] : null,
-                ];
-            }),
-            'devices' => $merchant->devices()->where('is_active', true)->get(),
-            'pending_invoices' => $pendingInvoices->map(function ($invoice) {
-                return [
-                    'id' => $invoice->id,
-                    'amount' => $invoice->amount,
-                    'currency' => $invoice->currency,
-                    'due_at' => $invoice->due_at,
-                    'description' => $invoice->description,
-                    'status' => $invoice->status,
-                    'plan' => $invoice->subscription?->plan ? [
-                        'id' => $invoice->subscription->plan->id,
-                        'name' => $invoice->subscription->plan->name,
-                        'code' => $invoice->subscription->plan->code,
-                    ] : null,
-                ];
-            }),
-            'awaiting_invoices' => $awaitingConfirmation->map(function ($invoice) {
-                return [
-                    'id' => $invoice->id,
-                    'amount' => $invoice->amount,
-                    'currency' => $invoice->currency,
-                    'due_at' => $invoice->due_at,
-                    'description' => $invoice->description,
-                    'submitted_at' => $invoice->updated_at,
-                    'status' => $invoice->status,
-                    'plan' => $invoice->subscription?->plan ? [
-                        'id' => $invoice->subscription->plan->id,
-                        'name' => $invoice->subscription->plan->name,
-                        'code' => $invoice->subscription->plan->code,
-                    ] : null,
-                ];
-            }),
+            'latest_invoice' => $latestInvoice ? [
+                'id' => $latestInvoice->id,
+                'amount' => $latestInvoice->amount,
+                'currency' => $latestInvoice->currency,
+                'due_at' => $latestInvoice->due_at,
+                'description' => $latestInvoice->note,
+                'status' => $latestInvoice->status,
+                'created_at' => $latestInvoice->created_at,
+                'updated_at' => $latestInvoice->updated_at,
+                'plan' => $latestInvoice->subscription?->plan ? [
+                    'id' => $latestInvoice->subscription->plan->id,
+                    'name' => $latestInvoice->subscription->plan->name,
+                    'code' => $latestInvoice->subscription->plan->code,
+                ] : null,
+            ] : null,
+            'devices' => $activeDevices,
+            'summary' => [
+                'has_active_invoice' => $latestInvoice !== null,
+                'invoice_status' => $latestInvoice?->status,
+                'device_count' => $activeDevices->count(),
+            ],
         ];
     }
 

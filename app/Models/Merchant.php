@@ -13,6 +13,7 @@ class Merchant extends Model
 
     public const STATUS_ACTIVE = 'active';
     public const STATUS_SUSPENDED = 'suspended';
+    public const STATUS_INACTIVE = 'inactive';
 
     protected $fillable = [
         'user_id',

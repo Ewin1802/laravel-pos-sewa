@@ -38,7 +38,6 @@ class Invoice extends Model
     {
         return [
             'amount' => 'decimal:2',
-            // 'amount' => 'float',
             'due_at' => 'datetime',
             'paid_at' => 'datetime',
         ];

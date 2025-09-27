@@ -359,10 +359,8 @@ class LicenseService
         return $subscription->licenseTokens()
             ->where('device_id', $device->id)
             ->whereNull('revoked_at')
-            ->where('expires_at', '>', now())
+            // ->where('expires_at', '>', now())
             ->latest()
             ->first();
     }
-
-
 }

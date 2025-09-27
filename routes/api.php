@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\LicenseController;
 use App\Http\Controllers\Api\V1\PaymentConfirmationController;
 use App\Http\Controllers\Api\V1\PlanController;
 use App\Http\Controllers\Api\V1\SubscriptionController;
+use App\Http\Controllers\Api\V1\SubscriptionRenewalController;
 use App\Http\Controllers\Api\V1\TrialController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,15 @@ Route::prefix('v1')->group(function () {
 
         // 📦 Subscription
         Route::get('/subscription/status', [SubscriptionController::class, 'status']);
+
+        // 🔄 Subscription Renewal
+        Route::prefix('subscription/renewal')->group(function () {
+            Route::get('/status', [SubscriptionRenewalController::class, 'status']);
+            Route::post('/renew', [SubscriptionRenewalController::class, 'renew']);
+            Route::post('/renew-with-plan', [SubscriptionRenewalController::class, 'renewWithPlan']);
+            Route::get('/available-plans', [SubscriptionRenewalController::class, 'availablePlans']);
+            Route::get('/history', [SubscriptionRenewalController::class, 'history']);
+        });
 
         // 🛒 Checkout & Payments
         Route::middleware('throttle:5,1')->group(function () {
