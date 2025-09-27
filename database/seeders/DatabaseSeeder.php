@@ -29,8 +29,8 @@ class DatabaseSeeder extends Seeder
             'features' => [
                 'Transaksi Tanpa Batas',
                 'Laporan Penjualan',
-                'Terhubung dengan Printer Struk',
-                '1 Akun 1 Device',
+                'Mendukung Printer Struk',
+                'Import Excel Data Produk',
                 'Backup Database',
                 'Restore Database',
             ],
@@ -48,8 +48,8 @@ class DatabaseSeeder extends Seeder
             'features' => [
                 'Transaksi Tanpa Batas',
                 'Laporan Penjualan',
-                'Terhubung dengan Printer Struk',
-                '1 Akun 1 Device',
+                'Mendukung Printer Struk',
+                'Import Excel Data Produk',
                 'Backup Database',
                 'Restore Database',
                 'Hemat 15%',

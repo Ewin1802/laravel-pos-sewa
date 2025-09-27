@@ -60,6 +60,14 @@ Route::prefix('v1')->group(function () {
             Route::get('/trial/status', [TrialController::class, 'status']);
             Route::post('/trial/convert', [TrialController::class, 'convert']);
         });
+
+        Route::get('/time', function (Request $request) {
+            return response()->json([
+                // Kirim waktu UTC dalam format ISO8601 agar mudah diparse di Flutter
+                'utc_time' => Carbon::now('UTC')->toIso8601String(),
+            ]);
+        });
+
     });
 });
 
