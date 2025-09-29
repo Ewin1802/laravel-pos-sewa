@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\PaymentConfirmationController;
 use App\Http\Controllers\Api\V1\PlanController;
 use App\Http\Controllers\Api\V1\SubscriptionController;
 use App\Http\Controllers\Api\V1\SubscriptionRenewalController;
+use App\Http\Controllers\Api\V1\TimeController;
 use App\Http\Controllers\Api\V1\TrialController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/register-merchant', [AuthController::class, 'registerMerchant']); // register merchant
     Route::post('/auth/login', [AuthController::class, 'login']); // login user
     Route::get('/plans', [PlanController::class, 'index']); // list subscription plans
+    Route::get('/time', [TimeController::class, 'now'])->name('api.v1.time'); // server time with signature
 
     // 🔐 Protected routes (Sanctum)
     Route::middleware('auth:sanctum')->group(function () {
@@ -60,14 +62,6 @@ Route::prefix('v1')->group(function () {
             Route::get('/trial/status', [TrialController::class, 'status']);
             Route::post('/trial/convert', [TrialController::class, 'convert']);
         });
-
-        Route::get('/time', function (Request $request) {
-            return response()->json([
-                // Kirim waktu UTC dalam format ISO8601 agar mudah diparse di Flutter
-                'utc_time' => Carbon::now('UTC')->toIso8601String(),
-            ]);
-        });
-
     });
 });
 

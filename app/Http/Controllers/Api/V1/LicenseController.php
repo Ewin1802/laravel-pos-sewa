@@ -45,6 +45,7 @@ class LicenseController extends BaseApiController
             return $this->successResponse([
                 'license_token' => $licenseToken->getAttribute('plain_token'),
                 'expires_at' => $licenseToken->expires_at,
+                'expires_at_ms' => $licenseToken->expires_at ? $licenseToken->expires_at->getTimestamp() * 1000 : null,
                 'device' => $device,
                 'subscription_status' => $subscription->status,
                 'plan_code' => $subscription->isTrial() ? 'TRIAL' : $subscription->plan->code,
@@ -82,6 +83,7 @@ class LicenseController extends BaseApiController
             return $this->successResponse([
                 'license_token' => $licenseToken->getAttribute('plain_token'),
                 'expires_at' => $licenseToken->expires_at,
+                'expires_at_ms' => $licenseToken->expires_at ? $licenseToken->expires_at->getTimestamp() * 1000 : null,
                 'device' => $device,
                 'subscription_status' => $subscription?->status,
                 'plan_code' => $subscription?->isTrial() ? 'TRIAL' : $subscription?->plan->code,
@@ -158,6 +160,7 @@ class LicenseController extends BaseApiController
             return $this->successResponse([
                 'license_token' => $licenseToken->getAttribute('plain_token'),
                 'expires_at' => $licenseToken->expires_at,
+                'expires_at_ms' => $licenseToken->expires_at ? $licenseToken->expires_at->getTimestamp() * 1000 : null,
                 'device' => $device,
                 'subscription_status' => $subscription->status,
                 'plan_code' => $subscription->isTrial() ? 'TRIAL' : $subscription->plan->code,
