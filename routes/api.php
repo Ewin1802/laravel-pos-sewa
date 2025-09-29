@@ -39,7 +39,8 @@ Route::prefix('v1')->group(function () {
         });
 
         // 🛒 Checkout & Payments
-        Route::middleware('throttle:5,1')->group(function () {
+        // Route::middleware('throttle:5,1')->group(function () {
+        Route::middleware('throttle:60,1')->group(function () {
             Route::post('/checkout', [CheckoutController::class, 'checkout']);
             Route::get('/checkout/status', [CheckoutController::class, 'status']);
             Route::post('/checkout/cancel', [CheckoutController::class, 'cancel']);
