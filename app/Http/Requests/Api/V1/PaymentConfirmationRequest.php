@@ -21,7 +21,7 @@ class PaymentConfirmationRequest extends FormRequest
             'bank_name' => ['nullable', 'string', 'max:255'],
             'reference_no' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:1000'],
-            'evidence_file' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'], // 5MB max
+            'evidence_file' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf,heic', 'max:5120'], // 5MB max
         ];
     }
 
@@ -42,7 +42,7 @@ class PaymentConfirmationRequest extends FormRequest
             'notes.max' => 'Notes cannot exceed 1000 characters',
             'evidence_file.required' => 'Payment evidence file is required',
             'evidence_file.file' => 'Evidence must be a valid file',
-            'evidence_file.mimes' => 'Evidence file must be jpg, jpeg, png, or pdf',
+            'evidence_file.mimes' => 'Evidence file must be jpg, jpeg, png, heic or pdf',
             'evidence_file.max' => 'Evidence file cannot exceed 5MB',
         ];
     }
