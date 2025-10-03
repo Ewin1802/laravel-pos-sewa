@@ -21,7 +21,7 @@ class PlanFactory extends Factory
     {
         return [
             'name' => $this->faker->randomElement(['Basic Plan', 'Premium Plan', 'Enterprise Plan']),
-            'code' => $this->faker->unique()->randomElement(['BASIC', 'PREMIUM', 'ENTERPRISE']),
+            'code' => $this->faker->unique()->bothify('PLAN_???###'),
             'description' => $this->faker->sentence(10),
             'features' => [
                 'Unlimited Transactions',
