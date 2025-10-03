@@ -16,6 +16,7 @@ class PaymentForm
                 Select::make('invoice_id')
                     ->relationship('invoice', 'id')
                     ->required(),
+                    Tables\Columns\TextColumn::make('merchant.name')->label('Merchant'),
                 TextInput::make('amount')
                     ->required()
                     ->numeric(),
