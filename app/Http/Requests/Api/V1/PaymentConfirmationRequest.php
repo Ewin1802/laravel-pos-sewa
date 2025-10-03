@@ -42,7 +42,7 @@ class PaymentConfirmationRequest extends FormRequest
             'notes.max' => 'Notes cannot exceed 1000 characters',
             'evidence_file.required' => 'Payment evidence file is required',
             'evidence_file.file' => 'Evidence must be a valid file',
-            'evidence_file.mimes' => 'Evidence file must be jpg, jpeg, png, heic or pdf',
+            'evidence_file.mimes' => 'Evidence file must be jpg, jpeg, png, pdf, or heic',
             'evidence_file.max' => 'Evidence file cannot exceed 5MB',
         ];
     }

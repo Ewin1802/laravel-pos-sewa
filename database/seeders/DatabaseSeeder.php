@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\Plan;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -29,8 +30,8 @@ class DatabaseSeeder extends Seeder
             'features' => [
                 'Transaksi Tanpa Batas',
                 'Laporan Penjualan',
-                'Mendukung Printer Struk',
-                'Import Excel Data Produk',
+                'Terhubung dengan Printer Struk',
+                '1 Akun 1 Device',
                 'Backup Database',
                 'Restore Database',
             ],
@@ -48,8 +49,8 @@ class DatabaseSeeder extends Seeder
             'features' => [
                 'Transaksi Tanpa Batas',
                 'Laporan Penjualan',
-                'Mendukung Printer Struk',
-                'Import Excel Data Produk',
+                'Terhubung dengan Printer Struk',
+                '1 Akun 1 Device',
                 'Backup Database',
                 'Restore Database',
                 'Hemat 15%',
@@ -67,6 +68,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@pos.test',
             'password' => Hash::make('89898989'),
             'email_verified_at' => now(),
+            'role' => UserRole::ADMIN,
         ]);
         $adminUser->assignRole('admin');
 
@@ -74,6 +76,7 @@ class DatabaseSeeder extends Seeder
         $operatorUser = User::factory()->create([
             'name' => 'Operator User',
             'email' => 'operator@example.com',
+            'role' => UserRole::OPERATOR,
         ]);
         $operatorUser->assignRole('operator');
 
@@ -81,6 +84,7 @@ class DatabaseSeeder extends Seeder
         $merchantUser = User::factory()->create([
             'name' => 'Test Merchant',
             'email' => 'merchant@example.com',
+            'role' => UserRole::MERCHANT,
         ]);
         $merchantUser->assignRole('merchant');
     }
