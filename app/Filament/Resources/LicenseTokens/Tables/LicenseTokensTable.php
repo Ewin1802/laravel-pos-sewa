@@ -22,12 +22,12 @@ class LicenseTokensTable
     {
         return $table
             ->columns([
-                TextColumn::make('merchant.business_name')
+                TextColumn::make('merchant.name')
                     ->label('Merchant')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('device.device_id')
-                    ->label('Device ID')
+                TextColumn::make('device.device_uid')
+                    ->label('Device UID')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('subscription.plan.name')

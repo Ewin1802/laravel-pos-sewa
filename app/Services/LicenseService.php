@@ -353,13 +353,13 @@ class LicenseService
             ->whereNull('revoked_at')
             ->update(['revoked_at' => now()]);
     }
-
+    //get existing license for device and active
     public function getExistingLicense($merchant, $device, $subscription)
     {
         return $subscription->licenseTokens()
             ->where('device_id', $device->id)
             ->whereNull('revoked_at')
-            // ->where('expires_at', '>', now())
+            ->where('expires_at', '>', now())
             ->latest()
             ->first();
     }

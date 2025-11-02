@@ -9,6 +9,7 @@ use App\Models\Subscription;
 use App\Services\LicenseService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class LicenseController extends BaseApiController
 {
@@ -154,6 +155,14 @@ class LicenseController extends BaseApiController
             $licenseToken = $this->licenseService->getExistingLicense($merchant, $device, $subscription);
 
             if (!$licenseToken) {
+                // Log untuk debugging
+                Log::warning('No active license found', [
+                    'user_id' => $user->id,
+                    'merchant_id' => $merchant->id,
+                    'device_id' => $device->id,
+                    'subscription_id' => $subscription->id,
+                    'subscription_status' => $subscription->status,
+                ]);
                 return $this->errorResponse('No active license found', 404);
             }
 
