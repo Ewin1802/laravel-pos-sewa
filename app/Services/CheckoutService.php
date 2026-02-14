@@ -42,40 +42,106 @@ class CheckoutService
     /**
      * Validate if merchant is eligible for checkout
      */
+    // public function validateCheckoutEligibility(Merchant $merchant, Plan $plan, string $deviceUid): void
+    // {
+    //     // Check if merchant account is active
+    //     if (!$merchant->isActive()) {
+    //         throw ValidationException::withMessages([
+    //             'merchant' => ['Merchant account is not active'],
+    //         ]);
+    //     }
+
+    //     // Check if plan is active
+    //     if (!$plan->isActive()) {
+    //         throw ValidationException::withMessages([
+    //             'plan' => ['Selected plan is not active'],
+    //         ]);
+    //     }
+
+    //     // Validate device UID format
+    //     if (empty($deviceUid) || strlen($deviceUid) > 255) {
+    //         throw ValidationException::withMessages([
+    //             'device_uid' => ['Device UID is required and must not exceed 255 characters'],
+    //         ]);
+    //     }
+
+    //     // Check if merchant has unpaid invoices
+
+        // $unpaidInvoices = $merchant->invoices()
+        //     ->whereIn('status', [Invoice::STATUS_PENDING, Invoice::STATUS_AWAITING_CONFIRMATION])
+        //     ->count();
+
+
+    //     if ($unpaidInvoices > 0) {
+    //         throw ValidationException::withMessages([
+    //             'payment' => ['You have unpaid invoices. Please complete existing payments before creating new ones.'],
+    //         ]);
+    //     }
+    // }
+
     public function validateCheckoutEligibility(Merchant $merchant, Plan $plan, string $deviceUid): void
     {
-        // Check if merchant account is active
+        // ==============================
+        // 1. Validate Merchant
+        // ==============================
         if (!$merchant->isActive()) {
             throw ValidationException::withMessages([
                 'merchant' => ['Merchant account is not active'],
             ]);
         }
 
-        // Check if plan is active
+        // ==============================
+        // 2. Validate Plan
+        // ==============================
         if (!$plan->isActive()) {
             throw ValidationException::withMessages([
                 'plan' => ['Selected plan is not active'],
             ]);
         }
 
-        // Validate device UID format
+        // ==============================
+        // 3. Validate Device UID
+        // ==============================
         if (empty($deviceUid) || strlen($deviceUid) > 255) {
             throw ValidationException::withMessages([
                 'device_uid' => ['Device UID is required and must not exceed 255 characters'],
             ]);
         }
 
-        // Check if merchant has unpaid invoices
-        $unpaidInvoices = $merchant->invoices()
-            ->whereIn('status', [Invoice::STATUS_PENDING, Invoice::STATUS_AWAITING_CONFIRMATION])
-            ->count();
+        // ==============================
+        // 4. Auto Cancel Expired Invoices
+        // ==============================
+        $merchant->invoices()
+            ->whereIn('status', [
+                Invoice::STATUS_PENDING,
+                Invoice::STATUS_AWAITING_CONFIRMATION
+            ])
+            ->where('due_at', '<=', now())
+            ->update([
+                'status' => Invoice::STATUS_CANCELLED,
+                'updated_at' => now(),
+            ]);
 
-        if ($unpaidInvoices > 0) {
+        // ==============================
+        // 5. Check Active Unpaid Invoice
+        // ==============================
+        $hasActiveUnpaidInvoice = $merchant->invoices()
+            ->whereIn('status', [
+                Invoice::STATUS_PENDING,
+                Invoice::STATUS_AWAITING_CONFIRMATION
+            ])
+            ->where('due_at', '>', now())
+            ->exists();
+
+        if ($hasActiveUnpaidInvoice) {
             throw ValidationException::withMessages([
-                'payment' => ['You have unpaid invoices. Please complete existing payments before creating new ones.'],
+                'payment' => [
+                    'You have unpaid invoices. Please complete existing payments before creating new ones.'
+                ],
             ]);
         }
     }
+
 
     /**
      * Get existing device or create new one
@@ -182,15 +248,76 @@ class CheckoutService
     /**
      * Get checkout statistics for a merchant - only returns the latest invoice
      */
+    // public function getCheckoutStats(Merchant $merchant): array
+    // {
+    //     // Get the latest invoice regardless of status
+    //     $latestInvoice = $merchant->invoices()
+    //         ->with('subscription.plan')
+    //         ->latest('created_at')
+    //         ->first();
+
+    //     $activeDevices = $merchant->devices()->where('is_active', true)->get();
+
+    //     return [
+    //         'latest_invoice' => $latestInvoice ? [
+    //             'id' => $latestInvoice->id,
+    //             'amount' => $latestInvoice->amount,
+    //             'currency' => $latestInvoice->currency,
+    //             'due_at' => $latestInvoice->due_at,
+    //             'description' => $latestInvoice->note,
+    //             'status' => $latestInvoice->status,
+    //             'created_at' => $latestInvoice->created_at,
+    //             'updated_at' => $latestInvoice->updated_at,
+    //             'plan' => $latestInvoice->subscription?->plan ? [
+    //                 'id' => $latestInvoice->subscription->plan->id,
+    //                 'name' => $latestInvoice->subscription->plan->name,
+    //                 'code' => $latestInvoice->subscription->plan->code,
+    //             ] : null,
+    //         ] : null,
+    //         'devices' => $activeDevices,
+    //         'summary' => [
+    //             'has_active_invoice' => $latestInvoice !== null,
+    //             'invoice_status' => $latestInvoice?->status,
+    //             'device_count' => $activeDevices->count(),
+    //         ],
+    //     ];
+    // }
+
     public function getCheckoutStats(Merchant $merchant): array
     {
-        // Get the latest invoice regardless of status
+        // Auto cancel expired invoices before fetching stats
+        $merchant->invoices()
+            ->whereIn('status', [
+                Invoice::STATUS_PENDING,
+                Invoice::STATUS_AWAITING_CONFIRMATION
+            ])
+            ->where('due_at', '<=', now())
+            ->update([
+                'status' => Invoice::STATUS_CANCELLED,
+                'updated_at' => now(),
+            ]);
+
+        // Get latest invoice
         $latestInvoice = $merchant->invoices()
             ->with('subscription.plan')
             ->latest('created_at')
             ->first();
 
-        $activeDevices = $merchant->devices()->where('is_active', true)->get();
+        $activeDevices = $merchant->devices()
+            ->where('is_active', true)
+            ->get();
+
+        $hasActiveInvoice = false;
+
+        if ($latestInvoice) {
+            $hasActiveInvoice = in_array(
+                $latestInvoice->status,
+                [
+                    Invoice::STATUS_PENDING,
+                    Invoice::STATUS_AWAITING_CONFIRMATION
+                ]
+            ) && $latestInvoice->due_at > now();
+        }
 
         return [
             'latest_invoice' => $latestInvoice ? [
@@ -208,14 +335,20 @@ class CheckoutService
                     'code' => $latestInvoice->subscription->plan->code,
                 ] : null,
             ] : null,
+
             'devices' => $activeDevices,
+
             'summary' => [
-                'has_active_invoice' => $latestInvoice !== null,
+                'has_active_invoice' => $hasActiveInvoice,
                 'invoice_status' => $latestInvoice?->status,
+                'invoice_is_expired' => $latestInvoice
+                    ? $latestInvoice->due_at <= now()
+                    : null,
                 'device_count' => $activeDevices->count(),
             ],
         ];
     }
+
 
     /**
      * Cancel pending checkout (mark invoice as cancelled)
