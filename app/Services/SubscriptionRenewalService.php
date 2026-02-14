@@ -33,6 +33,28 @@ class SubscriptionRenewalService
             // Validate renewal eligibility
             $this->validateRenewalEligibility($merchant, $subscription, $planToUse);
 
+            // Check if already has active pending renewal invoice
+            $existingInvoice = $merchant->invoices()
+                ->whereIn('status', [
+                    Invoice::STATUS_PENDING,
+                    Invoice::STATUS_AWAITING_CONFIRMATION
+                ])
+                ->where('subscription_id', $subscription->id)
+                ->where('due_at', '>', now())
+                ->latest()
+                ->first();
+
+            if ($existingInvoice) {
+                return [
+                    'subscription' => $subscription->load('plan'),
+                    'invoice' => $existingInvoice,
+                    'payment_instructions' => app(CheckoutService::class)
+                        ->getPaymentInstructions($existingInvoice),
+                    'renewal_type' => $newPlan ? 'upgrade' : 'renewal',
+                ];
+            }
+
+
             // Create renewal invoice
             $invoice = $this->createRenewalInvoice($merchant, $planToUse, $subscription);
 
@@ -221,41 +243,77 @@ class SubscriptionRenewalService
     /**
      * Validate if subscription can be renewed
      */
-    private function validateRenewalEligibility(Merchant $merchant, Subscription $subscription, Plan $plan): void
-    {
-        // Check if merchant is active
+   private function validateRenewalEligibility(
+        Merchant $merchant,
+        Subscription $subscription,
+        Plan $plan
+    ): void {
+
+        // ==============================
+        // 1. Check Merchant Active
+        // ==============================
         if (!$merchant->isActive()) {
             throw ValidationException::withMessages([
                 'merchant' => ['Merchant account is not active'],
             ]);
         }
 
-        // Check if plan is active
+        // ==============================
+        // 2. Check Plan Active
+        // ==============================
         if (!$plan->isActive()) {
             throw ValidationException::withMessages([
                 'plan' => ['Selected plan is not active'],
             ]);
         }
 
-        // Check if merchant has other unpaid invoices
-        $unpaidInvoices = $merchant->invoices()
-            ->whereIn('status', [Invoice::STATUS_PENDING, Invoice::STATUS_AWAITING_CONFIRMATION])
-            ->where('id', '!=', $subscription->current_invoice_id ?? 0)
-            ->count();
+        // ==============================
+        // 3. Auto Cancel Expired Invoices
+        // ==============================
+        $merchant->invoices()
+            ->whereIn('status', [
+                Invoice::STATUS_PENDING,
+                Invoice::STATUS_AWAITING_CONFIRMATION,
+            ])
+            ->where('due_at', '<=', now())
+            ->update([
+                'status' => Invoice::STATUS_CANCELLED,
+                'updated_at' => now(),
+            ]);
 
-        if ($unpaidInvoices > 0) {
+        // ==============================
+        // 4. Check Active Unpaid Invoices
+        //    (Exclude current invoice if exists)
+        // ==============================
+        $hasActiveUnpaidInvoice = $merchant->invoices()
+            ->whereIn('status', [
+                Invoice::STATUS_PENDING,
+                Invoice::STATUS_AWAITING_CONFIRMATION,
+            ])
+            ->where('id', '!=', $subscription->current_invoice_id ?? 0)
+            ->where('due_at', '>', now())
+            ->exists();
+
+        if ($hasActiveUnpaidInvoice) {
             throw ValidationException::withMessages([
-                'payment' => ['Please complete existing pending payments before renewing'],
+                'payment' => [
+                    'Please complete existing pending payments before renewing'
+                ],
             ]);
         }
 
-        // Check if subscription can be renewed
+        // ==============================
+        // 5. Check If Subscription Can Be Renewed
+        // ==============================
         if (!$this->canRenewSubscription($merchant, $subscription)) {
             throw ValidationException::withMessages([
-                'subscription' => ['This subscription cannot be renewed at this time'],
+                'subscription' => [
+                    'This subscription cannot be renewed at this time'
+                ],
             ]);
         }
     }
+
 
     /**
      * Check if a subscription can be renewed
@@ -269,13 +327,16 @@ class SubscriptionRenewalService
 
         // Can renew if subscription is active and expiring soon (within 30 days)
         if ($subscription->status === Subscription::STATUS_ACTIVE) {
-            return $subscription->end_at && $subscription->end_at->diffInDays(now()) <= 30;
+            return $subscription->end_at
+                && $subscription->end_at->isFuture()
+                && $subscription->end_at->diffInDays(now()) <= 30;
         }
 
-        // Can renew if subscription is expired (within 90 days of expiration)
         if ($subscription->status === Subscription::STATUS_EXPIRED) {
-            return $subscription->end_at && $subscription->end_at->diffInDays(now()) <= 90;
+            return $subscription->end_at
+                && $subscription->end_at->diffInDays(now()) <= 90;
         }
+
 
         // Cannot renew pending or cancelled subscriptions
         return false;
